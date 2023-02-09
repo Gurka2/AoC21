@@ -1,2 +1,2 @@
-day-*/target
-day-*/Cargo.lock
+**/target
+**/Cargo.lock
