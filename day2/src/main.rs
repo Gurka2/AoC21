@@ -25,8 +25,12 @@ fn main() {
             }
         }
     }
+
     let p1 = pos1[0]*pos1[1];
     println!("Result part1: {}", p1);
+    let p2 = pos2[0]*pos2[2];
+    println!("Result part2: {}", p2);
+
 }
 
 pub fn day_1_part_1(command: &String, pos: &mut[i128]) {
@@ -63,8 +67,11 @@ pub fn day_1_part_2(command: &String, pos: &mut[i128]) {
     let number2 = number as i128;
 
     match nr_index {
-        8 => pos[0] += number2 pos[0] += pos[1]*pos[2],
-        5 => pos[2] += number2,
+        8 => {
+            pos[0] += number2;
+            pos[2] += number2*pos[1];
+        },
+        5 => pos[1] += number2,
         3 => pos[1] -= number2,
         _ => println!("Something is wrong"),
 
