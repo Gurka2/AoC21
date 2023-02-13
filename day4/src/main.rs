@@ -1,3 +1,4 @@
+use std::array;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
@@ -12,6 +13,7 @@ fn main() {
 
     let mut is_bingo_time = false;
     let mut numbers: Vec<i32> = Vec::new();
+    let mut bingo_trays: Vec<[[i32; 5]; 5]> = Vec::new();
 
     // Parse the imput file
     if let Ok(lines) = read_lines(TEST) {
@@ -20,21 +22,112 @@ fn main() {
 
                 if !ip.is_empty() && !is_bingo_time {
                     parse_numbers(&mut numbers, &ip);
-                } else if ip.is_empty() {
+                }
+
+                if ip.is_empty() {
                     is_bingo_time = true;
+                }
+
+                if is_bingo_time {
+                    parse_bingo(&mut bingo_trays, &ip);
                 }
             }
         }
     }
 }
 
-pub fn parse_numbers(numbers: &mut Vec<i32>, numbers_input: &str) {
-    for i in 0..numbers_input.len() {
-        let value = numbers_input.chars().nth(i).unwrap();
-        println!("{}", value);
+pub fn parse_bingo(bingo_trays: &mut Vec<[[i32; 5]; 5]>, input: &str) {
+
+    // Next row is begining of another bingo tray
+    if input.is_empty() {
+        bingo_trays.push([[0; 5]; 5]);
+    } 
+
+    else {
+        for mut tray in bingo_trays[bingo_trays.len()-1] {
+
+            // Non zero means this row is already filled
+            for value in tray {
+                if value != 0 {
+                    break;
+                }
+            }
+
+            insert_bingo_row(&mut tray, input)
+
+        }
+    }
+}
+
+pub fn insert_bingo_row(row: &mut [i32; 5], input: &str) {
+    let mut x = 0;
+
+    let mut number = String::new();
+
+    for i in 0..input.len() {
+        let value = input.chars().nth(i).unwrap();
+
+        // Only chars are 0..9 and ','
+        match value {
+            ' ' => {
+                row[x] = str_to_i32(&number);
+                number = "".to_string();
+                x += 1;
+            },
+            _ => {
+                number.push(value);
+
+                // edge case
+                if i == input.len()-1 {
+                    row[x] = str_to_i32(&number);
+                }
+            },
+        }
+    }
+}
+
+
+pub fn parse_numbers(numbers: &mut Vec<i32>, input: &str) {
+
+    let mut number = String::new();
+
+    for i in 0..input.len() {
+        let value = input.chars().nth(i).unwrap();
+
+        // Only chars are 0..9 and ','
+        match value {
+            ',' => {
+                numbers.push(str_to_i32(&number));
+                number = "".to_string();
+            },
+            _ => {
+                number.push(value);
+
+                // edge case
+                if i == input.len()-1 {
+                    numbers.push(str_to_i32(&number));
+                }
+            },
+        }
+    }
+}
+
+
+pub fn str_to_i32(input: &str) -> i32 {
+    println!("{}", input);
+    if input.is_empty() {
+        return 0;
     }
 
+    let mut number = String::new();
+
+    for i in 0..input.len() {
+        let value = input.chars().nth(i).unwrap();
+        number.push(value);
+    }
+    return number.parse().unwrap();
 }
+
 
 fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
 where P: AsRef<Path>, {
