@@ -1,4 +1,3 @@
-use std::array;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
@@ -34,6 +33,10 @@ fn main() {
             }
         }
     }
+
+    for tray in bingo_trays {
+        println!("{:?}", tray);
+    }
 }
 
 pub fn parse_bingo(bingo_trays: &mut Vec<[[i32; 5]; 5]>, input: &str) {
@@ -47,14 +50,14 @@ pub fn parse_bingo(bingo_trays: &mut Vec<[[i32; 5]; 5]>, input: &str) {
         for mut tray in bingo_trays[bingo_trays.len()-1] {
 
             // Non zero means this row is already filled
-            for value in tray {
-                if value != 0 {
-                    break;
+            for y in tray {
+                for x in y {
+                    if x != 0 {
+                        break;
+                    }
                 }
             }
-
-            insert_bingo_row(&mut tray, input)
-
+        insert_bingo_row(&mut tray, input);
         }
     }
 }
@@ -70,9 +73,14 @@ pub fn insert_bingo_row(row: &mut [i32; 5], input: &str) {
         // Only chars are 0..9 and ','
         match value {
             ' ' => {
-                row[x] = str_to_i32(&number);
-                number = "".to_string();
-                x += 1;
+                // If the first value is ' ' skip it
+                if i != 0 {
+                    row[x] = str_to_i32(&number);
+                    number = "".to_string();
+                    if input.chars().nth(i+1).unwrap() != ' ' {
+                        x += 1;
+                    }
+                }
             },
             _ => {
                 number.push(value);
@@ -114,7 +122,7 @@ pub fn parse_numbers(numbers: &mut Vec<i32>, input: &str) {
 
 
 pub fn str_to_i32(input: &str) -> i32 {
-    println!("{}", input);
+    println!("input: {}", input);
     if input.is_empty() {
         return 0;
     }
